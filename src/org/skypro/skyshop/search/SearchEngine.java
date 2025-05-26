@@ -6,7 +6,6 @@ public class SearchEngine {
 
     public SearchEngine(int capacity) {
         this.searchables = new Searchable[capacity];
-        this.count = 0;
     }
 
     public void add(Searchable searchable) {
@@ -15,16 +14,34 @@ public class SearchEngine {
         }
     }
 
-    public Searchable[] search(String query) {
-        Searchable[] results = new Searchable[5];
-        int found = 0;
+    public Searchable findBestMatch(String searchQuery) throws BestResultNotFound {
+        Searchable bestMatch = null;
+        int maxCount = -1;
+        String lowerQuery = searchQuery.toLowerCase();
 
-        for (int i = 0; i < count && found < 5; i++) {
-            if (searchables[i].getSearchTerm().toLowerCase()
-                    .contains(query.toLowerCase())) {
-                results[found++] = searchables[i];
+        for (int i = 0; i < count; i++) {
+            String text = searchables[i].getSearchTerm().toLowerCase();
+            int occurrences = countOccurrences(text, lowerQuery);
+
+            if (occurrences > maxCount) {
+                maxCount = occurrences;
+                bestMatch = searchables[i];
             }
         }
-        return results;
+
+        if (bestMatch == null) {
+            throw new BestResultNotFound(searchQuery);
+        }
+        return bestMatch;
+    }
+
+    private int countOccurrences(String text, String substring) {
+        int count = 0;
+        int index = 0;
+        while ((index = text.indexOf(substring, index)) != -1) {
+            count++;
+            index += substring.length();
+        }
+        return count;
     }
 }
