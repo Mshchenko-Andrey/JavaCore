@@ -2,38 +2,29 @@ package org.skypro.skyshop;
 
 import org.skypro.skyshop.content.Article;
 import org.skypro.skyshop.product.*;
-import org.skypro.skyshop.search.SearchEngine;
-import java.util.Arrays;
+import org.skypro.skyshop.search.*;
 
 public class App {
     public static void main(String[] args) {
 
-        Product[] products = {
-                new SimpleProduct("Книга по Java", 500),
-                new DiscountedProduct("Ноутбук", 50000, 10),
-                new FixPriceProduct("Кабель USB")
-        };
-
-
-        Article[] articles = {
-                new Article("Обзор ноутбуков", "Лучшие модели 2023 года"),
-                new Article("Изучение Java", "Основы программирования")
-        };
-
+        try {
+            Product invalid = new SimpleProduct(" ", -100);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка создания продукта: " + e.getMessage());
+        }
 
         SearchEngine engine = new SearchEngine(10);
-        for (Product p : products) engine.add(p);
-        for (Article a : articles) engine.add(a);
+        engine.add(new SimpleProduct("Java книга", 500));
+        engine.add(new Article("Java уроки", "Изучаем Java с нуля"));
+        engine.add(new DiscountedProduct("Java курс", 10000, 10));
 
+        try {
+            Searchable best = engine.findBestMatch("Java");
+            System.out.println("Лучший результат: " + best.getStringRepresentation());
 
-        System.out.println("=== Поиск 'Java' ===");
-        Arrays.stream(engine.search("Java"))
-                .filter(r -> r != null)
-                .forEach(r -> System.out.println(r.getStringRepresentation()));
-
-        System.out.println("\n=== Поиск 'ноутбук' ===");
-        Arrays.stream(engine.search("ноутбук"))
-                .filter(r -> r != null)
-                .forEach(r -> System.out.println(r.getStringRepresentation()));
+            engine.findBestMatch("Python");
+        } catch (BestResultNotFound e) {
+            System.out.println("Ошибка поиска: " + e.getMessage());
+        }
     }
 }
