@@ -1,30 +1,61 @@
 package org.skypro.skyshop;
 
+import org.skypro.skyshop.basket.ProductBasket;
 import org.skypro.skyshop.content.Article;
 import org.skypro.skyshop.product.*;
-import org.skypro.skyshop.search.*;
+import org.skypro.skyshop.search.SearchEngine;
+import org.skypro.skyshop.search.BestResultNotFound;
+import org.skypro.skyshop.search.Searchable;
+
+import java.util.List;
 
 public class App {
     public static void main(String[] args) {
 
-        try {
-            Product invalid = new SimpleProduct(" ", -100);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Ошибка создания продукта: " + e.getMessage());
+        ProductBasket basket = new ProductBasket();
+        SearchEngine engine = new SearchEngine();
+
+
+        Product javaBook = new SimpleProduct("Java Book", 500);
+        Product javaCourse = new DiscountedProduct("Java Course", 10000, 10);
+        Product cable = new FixPriceProduct("USB Cable");
+        Article javaArticle = new Article("Java News", "Latest Java updates");
+
+
+        basket.addProduct(javaBook);
+        basket.addProduct(javaCourse);
+        basket.addProduct(javaCourse);
+        basket.addProduct(cable);
+
+
+        engine.add(javaBook);
+        engine.add(javaCourse);
+        engine.add(cable);
+        engine.add(javaArticle);
+
+
+        System.out.println("=== Демонстрация удаления ===");
+        List<Product> removed = basket.removeProductsByName("Java Course");
+        if (removed.isEmpty()) {
+            System.out.println("Список пуст - продукты не найдены");
+        } else {
+            System.out.println("Удаленные продукты:");
+            removed.forEach(System.out::println);
         }
+        basket.printBasket();
 
-        SearchEngine engine = new SearchEngine(10);
-        engine.add(new SimpleProduct("Java книга", 500));
-        engine.add(new Article("Java уроки", "Изучаем Java с нуля"));
-        engine.add(new DiscountedProduct("Java курс", 10000, 10));
+
+        System.out.println("\n=== Демонстрация поиска ===");
+        List<Searchable> results = engine.search("Java");
+        System.out.println("Найдено " + results.size() + " результатов:");
+        results.forEach(r -> System.out.println(r.getStringRepresentation()));
+
 
         try {
-            Searchable best = engine.findBestMatch("Java");
-            System.out.println("Лучший результат: " + best.getStringRepresentation());
-
-            engine.findBestMatch("Python");
+            System.out.println("\nЛучший результат для 'Java':");
+            System.out.println(engine.findBestMatch("Java").getStringRepresentation());
         } catch (BestResultNotFound e) {
-            System.out.println("Ошибка поиска: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 }
