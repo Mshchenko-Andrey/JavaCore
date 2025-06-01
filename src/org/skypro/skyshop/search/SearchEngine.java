@@ -1,36 +1,58 @@
 package org.skypro.skyshop.search;
 
-public class SearchEngine {
-    private final Searchable[] searchables;
-    private int count;
+import java.util.ArrayList;
+import java.util.List;
 
-    public SearchEngine(int capacity) {
-        this.searchables = new Searchable[capacity];
+public class SearchEngine {
+    private final List<Searchable> searchables;
+
+    public SearchEngine() {
+        this.searchables = new ArrayList<>();
     }
 
     public void add(Searchable searchable) {
-        if (count < searchables.length) {
-            searchables[count++] = searchable;
+        if (searchable != null) {
+            searchables.add(searchable);
         }
     }
 
-    public Searchable findBestMatch(String searchQuery) throws BestResultNotFound {
+
+    public List<Searchable> search(String query) {
+        List<Searchable> results = new ArrayList<>();
+        if (query == null || query.isBlank()) {
+            return results;
+        }
+
+        String lowerQuery = query.toLowerCase();
+        for (Searchable item : searchables) {
+            if (item.getSearchTerm().toLowerCase().contains(lowerQuery)) {
+                results.add(item);
+            }
+        }
+        return results;
+    }
+
+    public Searchable findBestMatch(String query) throws BestResultNotFound {
+        if (query == null || query.isBlank()) {
+            throw new BestResultNotFound(query);
+        }
+
         Searchable bestMatch = null;
-        int maxCount = -1;
-        String lowerQuery = searchQuery.toLowerCase();
+        int maxCount = 0;
+        String lowerQuery = query.toLowerCase();
 
-        for (int i = 0; i < count; i++) {
-            String text = searchables[i].getSearchTerm().toLowerCase();
-            int occurrences = countOccurrences(text, lowerQuery);
+        for (Searchable item : searchables) {
+            String text = item.getSearchTerm().toLowerCase();
+            int count = countOccurrences(text, lowerQuery);
 
-            if (occurrences > maxCount) {
-                maxCount = occurrences;
-                bestMatch = searchables[i];
+            if (count > maxCount) {
+                maxCount = count;
+                bestMatch = item;
             }
         }
 
         if (bestMatch == null) {
-            throw new BestResultNotFound(searchQuery);
+            throw new BestResultNotFound(query);
         }
         return bestMatch;
     }

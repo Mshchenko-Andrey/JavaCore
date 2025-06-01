@@ -1,51 +1,51 @@
 package org.skypro.skyshop.basket;
 
 import org.skypro.skyshop.product.Product;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class ProductBasket {
-    private static final int BASKET_CAPACITY = 5;
-    private final Product[] products;
-    private int count;
+    private final List<Product> products;
 
     public ProductBasket() {
-        this.products = new Product[BASKET_CAPACITY];
-        this.count = 0;
+        this.products = new ArrayList<>();
     }
 
     public void addProduct(Product product) {
-        if (count < BASKET_CAPACITY) {
-            products[count++] = product;
-        } else {
-            System.out.println("Невозможно добавить продукт: корзина заполнена");
-        }
+        products.add(product);
     }
 
-    public int getTotalPrice() {
-        int total = 0;
-        for (int i = 0; i < count; i++) {
-            total += products[i].getPrice();
+    public List<Product> removeProductsByName(String name) {
+        List<Product> removed = new ArrayList<>();
+        Iterator<Product> iterator = products.iterator();
+
+        while (iterator.hasNext()) {
+            Product product = iterator.next();
+            if (product.getName().equalsIgnoreCase(name)) {
+                removed.add(product);
+                iterator.remove();
+            }
         }
-        return total;
+
+        return removed;
+    }
+
+
+    public int getTotalPrice() {
+        return products.stream()
+                .mapToInt(Product::getPrice)
+                .sum();
     }
 
     public void printBasket() {
-        if (count == 0) {
+        if (products.isEmpty()) {
             System.out.println("В корзине пусто");
             return;
         }
 
-        int specialCount = 0;
         System.out.println("=== Содержимое корзины ===");
-
-        for (int i = 0; i < count; i++) {
-            Product p = products[i];
-            System.out.println(p);
-            if (p.isSpecial()) {
-                specialCount++;
-            }
-        }
-
+        products.forEach(System.out::println);
         System.out.println("Итого: " + getTotalPrice() + " руб.");
-        System.out.println("Специальных товаров: " + specialCount);
     }
 }
