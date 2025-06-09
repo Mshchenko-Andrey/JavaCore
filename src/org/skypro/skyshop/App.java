@@ -7,7 +7,7 @@ import org.skypro.skyshop.search.SearchEngine;
 import org.skypro.skyshop.search.BestResultNotFound;
 import org.skypro.skyshop.search.Searchable;
 
-import java.util.List;
+import java.util.Map;
 
 public class App {
     public static void main(String[] args) {
@@ -16,39 +16,37 @@ public class App {
         SearchEngine engine = new SearchEngine();
 
 
-        Product javaBook = new SimpleProduct("Java Book", 500);
-        Product javaCourse = new DiscountedProduct("Java Course", 10000, 10);
-        Product cable = new FixPriceProduct("USB Cable");
-        Article javaArticle = new Article("Java News", "Latest Java updates");
+        Product javaBook1 = new SimpleProduct("Java Book", 500);
+        Product javaBook2 = new SimpleProduct("Java Book", 500);
+        Product pythonBook = new SimpleProduct("Python Book", 600);
+        Article javaArticle = new Article("Java News", "Latest Java features");
 
 
-        basket.addProduct(javaBook);
-        basket.addProduct(javaCourse);
-        basket.addProduct(javaCourse);
-        basket.addProduct(cable);
+        basket.addProduct(javaBook1);
+        basket.addProduct(javaBook2);
+        basket.addProduct(pythonBook);
 
 
-        engine.add(javaBook);
-        engine.add(javaCourse);
-        engine.add(cable);
+        engine.add(javaBook1);
+        engine.add(pythonBook);
         engine.add(javaArticle);
 
 
-        System.out.println("=== Демонстрация удаления ===");
-        List<Product> removed = basket.removeProductsByName("Java Course");
-        if (removed.isEmpty()) {
-            System.out.println("Список пуст - продукты не найдены");
-        } else {
-            System.out.println("Удаленные продукты:");
-            removed.forEach(System.out::println);
-        }
+        System.out.println("=== Тестирование корзины ===");
         basket.printBasket();
 
 
-        System.out.println("\n=== Демонстрация поиска ===");
-        List<Searchable> results = engine.search("Java");
+        System.out.println("\nУдаляем 'Java Book':");
+        basket.removeProductsByName("Java Book").forEach(System.out::println);
+        System.out.println("Осталось в корзине:");
+        basket.printBasket();
+
+
+        System.out.println("\n=== Тестирование поиска ===");
+        Map<String, Searchable> results = engine.search("Java");
         System.out.println("Найдено " + results.size() + " результатов:");
-        results.forEach(r -> System.out.println(r.getStringRepresentation()));
+        results.forEach((name, item) ->
+                System.out.println(name + " (" + item.getContentType() + ")"));
 
 
         try {
