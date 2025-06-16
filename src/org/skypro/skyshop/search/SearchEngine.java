@@ -1,7 +1,7 @@
 package org.skypro.skyshop.search;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class SearchEngine {
     private final List<Searchable> searchables;
@@ -10,27 +10,29 @@ public class SearchEngine {
         this.searchables = new ArrayList<>();
     }
 
+
     public void add(Searchable searchable) {
         if (searchable != null) {
             searchables.add(searchable);
         }
     }
 
-
-    public List<Searchable> search(String query) {
-        List<Searchable> results = new ArrayList<>();
+    public TreeMap<String, Searchable> search(String query) {
         if (query == null || query.isBlank()) {
-            return results;
+            return new TreeMap<>();
         }
 
         String lowerQuery = query.toLowerCase();
-        for (Searchable item : searchables) {
-            if (item.getSearchTerm().toLowerCase().contains(lowerQuery)) {
-                results.add(item);
-            }
-        }
-        return results;
+        return searchables.stream()
+                .filter(item -> item.getSearchTerm().toLowerCase().contains(lowerQuery))
+                .collect(Collectors.toMap(
+                        Searchable::getName,
+                        item -> item,
+                        (existing, replacement) -> existing,
+                        TreeMap::new
+                ));
     }
+
 
     public Searchable findBestMatch(String query) throws BestResultNotFound {
         if (query == null || query.isBlank()) {
@@ -45,7 +47,7 @@ public class SearchEngine {
             String text = item.getSearchTerm().toLowerCase();
             int count = countOccurrences(text, lowerQuery);
 
-            if (count > maxCount) {
+            if (count > maxCount || (count == maxCount && bestMatch == null)) {
                 maxCount = count;
                 bestMatch = item;
             }
@@ -65,5 +67,15 @@ public class SearchEngine {
             index += substring.length();
         }
         return count;
+    }
+
+
+    public int size() {
+        return searchables.size();
+    }
+
+
+    public void clear() {
+        searchables.clear();
     }
 }
