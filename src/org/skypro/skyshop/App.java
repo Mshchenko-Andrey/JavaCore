@@ -11,40 +11,28 @@ import java.util.Set;
 
 public class App {
     public static void main(String[] args) {
-
         ProductBasket basket = new ProductBasket();
         SearchEngine engine = new SearchEngine();
 
-
         Product javaBook = new SimpleProduct("Java Book", 500);
         Product javaCourse = new DiscountedProduct("Java Course", 10000, 10);
-        Product longNameProduct = new SimpleProduct("Very Long Product Name", 200);
+        Product pythonBook = new SimpleProduct("Python Book", 600);
         Article javaArticle = new Article("Java News", "Latest Java features");
-        Article longArticle = new Article("Very Long Article Title", "Content");
 
-
-        engine.add(javaBook);
+        basket.addProduct(javaBook);
+        basket.addProduct(javaCourse);
+        basket.addProduct(pythonBook);
         engine.add(javaBook);
         engine.add(javaCourse);
-        engine.add(longNameProduct);
         engine.add(javaArticle);
-        engine.add(longArticle);
 
+        System.out.println("=== Содержимое корзины ===");
+        basket.printBasket();
 
-        System.out.println("=== Результаты поиска 'Java' ===");
-        Set<Searchable> javaResults = engine.search("Java");
-        javaResults.forEach(item -> System.out.println(
-                item.getName() + " (" + item.getContentType() + ")"
-        ));
+        System.out.println("\n=== Результаты поиска 'Java' ===");
+        Set<Searchable> results = engine.search("Java");
+        results.forEach(item -> System.out.println(item.getStringRepresentation()));
 
-
-        System.out.println("\n=== Все элементы (сортировка по длине имени) ===");
-        Set<Searchable> allResults = engine.search("");
-        allResults.forEach(item -> System.out.println(
-                item.getName() + " (" + item.getContentType() + ")"
-        ));
-
-        
         try {
             System.out.println("\nЛучший результат для 'Java':");
             System.out.println(engine.findBestMatch("Java").getStringRepresentation());

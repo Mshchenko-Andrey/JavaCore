@@ -11,14 +11,12 @@ public class ProductBasket {
         this.productsMap = new HashMap<>();
     }
 
-
     public void addProduct(Product product) {
         if (product == null) {
             throw new IllegalArgumentException("Продукт не может быть null");
         }
         productsMap.computeIfAbsent(product.getName(), k -> new ArrayList<>()).add(product);
     }
-
 
     public List<Product> removeProductsByName(String name) {
         if (name == null || name.isBlank()) {
@@ -35,6 +33,13 @@ public class ProductBasket {
                 .sum();
     }
 
+    private long getSpecialCount() {
+        return productsMap.values().stream()
+                .flatMap(List::stream)
+                .filter(Product::isSpecial)
+                .count();
+    }
+
     public void printBasket() {
         if (productsMap.isEmpty()) {
             System.out.println("В корзине пусто");
@@ -45,9 +50,10 @@ public class ProductBasket {
         productsMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .forEach(entry -> entry.getValue().forEach(System.out::println));
-        System.out.println("Итого: " + getTotalPrice() + " руб.");
-    }
 
+        System.out.println("Итого: " + getTotalPrice() + " руб.");
+        System.out.println("Специальных товаров: " + getSpecialCount());
+    }
 
     public boolean containsProduct(String name) {
         return name != null && productsMap.containsKey(name);
