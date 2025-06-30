@@ -28,17 +28,15 @@ public class SearchEngine {
         String lowerQuery = query.toLowerCase();
         return searchables.stream()
                 .filter(item -> item.getSearchTerm().toLowerCase().contains(lowerQuery))
-                .collect(Collectors.toCollection(
-                        () -> new TreeSet<>(SEARCHABLE_COMPARATOR)
-                ));
+                .collect(Collectors.toCollection(() -> new TreeSet<>(SEARCHABLE_COMPARATOR)));
     }
 
     public Searchable findBestMatch(String query) throws BestResultNotFound {
-        if (query == null || query.isBlank()) {
+        TreeSet<Searchable> results = search(query);
+        if (results.isEmpty()) {
             throw new BestResultNotFound(query);
         }
-
-        return search(query).first();
+        return results.first();
     }
 
     public int size() {
